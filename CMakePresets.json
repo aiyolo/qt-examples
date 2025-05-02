@@ -1,0 +1,102 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "base",
+      "toolchainFile": "conan\\generators\\conan_toolchain.cmake",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl"
+      }
+    },
+    {
+      "name": "multi-config",
+      "displayName": "Ninja Multi-Config",
+      "description": "Ninja Multi-Config",
+      "inherits": [
+        "base"
+      ],
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
+      },
+      "toolset": {
+        "value": "v142",
+        "strategy": "external"
+      },
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "binaryDir": "${sourceDir}\\build\\${presetName}"
+    },
+    {
+      "name": "vs2019",
+      "displayName": "vs2019 config",
+      "description": "vs2019 config",
+      "inherits": [
+        "base"
+      ],
+      "generator": "Visual Studio 16 2019",
+      "cacheVariables": {
+        "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
+      },
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "binaryDir": "${sourceDir}\\build\\${presetName}"
+    },
+    {
+      "name": "vs2022",
+      "displayName": "vs2022 config",
+      "description": "vs2022 config",
+      "inherits": [
+        "base"
+      ],
+      "generator": "Visual Studio 17 2022",
+      "cacheVariables": {
+        "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
+      },
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "binaryDir": "${sourceDir}\\build\\${presetName}"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "multi-debug",
+      "configurePreset": "multi-config",
+      "configuration": "Debug"
+    },
+    {
+      "name": "multi-release",
+      "configurePreset": "multi-config",
+      "configuration": "Release"
+    },
+    {
+      "name": "vs2019-debug",
+      "configurePreset": "vs2019",
+      "configuration": "Debug"
+    },
+    {
+      "name": "vs2019-release",
+      "configurePreset": "vs2019",
+      "configuration": "Release"
+    },
+    {
+      "name": "vs2022-debug",
+      "configurePreset": "vs2022",
+      "configuration": "Debug"
+    },
+    {
+      "name": "vs2022-release",
+      "configurePreset": "vs2022",
+      "configuration": "Release"
+    }
+  ]
+}
