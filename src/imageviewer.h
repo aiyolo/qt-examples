@@ -14,12 +14,21 @@ public:
     explicit ImageViewer(QWidget* parent = nullptr);
 
     void setImage(const QImage& image);
+    QImage getImage() const
+    {
+        return m_image;
+    }
     QPointF mapToImage(const QPointF& pos) const;
     QPointF mapFromImage(const QPointF& pos) const;
     double getScale() const
     {
         return m_transform.m11();
     }
+    void clearData()
+    {
+        setImage(QImage());
+    }
+    void fitToView();
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -34,8 +43,6 @@ private:
     QTransform m_transform;
     QPointF m_lastMousePos;
     bool m_isDragging;
-
-    void fitToView();
 };
 
 #endif // IMAGEVIEWER_H
