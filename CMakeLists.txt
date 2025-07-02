@@ -15,10 +15,21 @@ file(GLOB_RECURSE RCCFILES src/*.qrc)
 
 add_executable(${PROJECT_NAME} WIN32 ${HEADERS} ${SOURCES} ${UIFILES} ${RCCFILES})
 
-find_package(Qt5)
+if(WIN32)
+    if(DEFINED ENV{QT5_ROOT})
+        set(CMAKE_PREFIX_PATH "${QT5_ROOT}")
+    endif()
 
-target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::Gui Qt5::Core)
+    find_package(Qt5 COMPONENTS Widgets Core Gui REQUIRED)
+    target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::Gui Qt5::Core)
 
-target_compile_options(${PROJECT_NAME} PRIVATE "/utf-8")
+else()
+    if(APPLE)
+        set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};/opt/homebrew/opt/qt/lib")
+    endif()
 
+    find_package(Qt6 COMPONENTS Widgets Core Gui REQUIRED)
+    target_link_libraries(${PROJECT_NAME} Qt6::Widgets Qt6::Gui Qt6::Core)
+endif()
 
+# Removed invalid target compile options
