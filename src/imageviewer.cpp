@@ -2,6 +2,8 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QWheelEvent>
+#include <QContextMenuEvent>
+#include <QDebug>
 #include <qpoint.h>
 
 ImageViewer::ImageViewer(QWidget* parent) : QWidget(parent), m_isDragging(false)
@@ -77,6 +79,11 @@ void ImageViewer::mouseMoveEvent(QMouseEvent* event)
         m_lastMousePos = event->pos();
         update();
     }
+    
+    if (!m_image.isNull())
+    {
+        emit mouseMoved(mapToImage(event->pos()));
+    }
 }
 
 void ImageViewer::mouseReleaseEvent(QMouseEvent* event)
@@ -85,6 +92,23 @@ void ImageViewer::mouseReleaseEvent(QMouseEvent* event)
     {
         m_isDragging = false;
         setCursor(Qt::ArrowCursor);
+    }
+}
+
+void ImageViewer::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    if (!m_image.isNull())
+    {
+        emit doubleClicked(mapToImage(event->pos()));
+    }
+}
+
+void ImageViewer::contextMenuEvent(QContextMenuEvent* event)
+{
+    if (!m_image.isNull())
+    {
+        emit rightClicked(mapToImage(event->pos()));
+        fitToView();
     }
 }
 

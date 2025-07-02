@@ -10,6 +10,11 @@ class ImageViewer : public QWidget
 {
     Q_OBJECT
 
+signals:
+    void doubleClicked(const QPointF& pos);
+    void rightClicked(const QPointF& pos);
+    void mouseMoved(const QPointF& pos);
+
 public:
     explicit ImageViewer(QWidget* parent = nullptr);
 
@@ -36,6 +41,8 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
+    void contextMenuEvent(QContextMenuEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 
 private:

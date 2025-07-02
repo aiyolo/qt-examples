@@ -1,4 +1,5 @@
-﻿#include "mainwindow.h"
+#include "mainwindow.h"
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -17,10 +18,29 @@ MainWindow::MainWindow(QWidget* parent)
     // 设置窗口标题
     setWindowTitle("图片查看器");
 
+    // 连接 ImageViewer 的信号
+    connect(m_imageViewer, &ImageViewer::doubleClicked, this, &MainWindow::onImageDoubleClicked);
+    connect(m_imageViewer, &ImageViewer::rightClicked, this, &MainWindow::onImageRightClicked);
+    connect(m_imageViewer, &ImageViewer::mouseMoved, this, &MainWindow::onImageMouseMoved);
 }
 
 MainWindow::~MainWindow()
 {}
+
+void MainWindow::onImageDoubleClicked(const QPointF& pos)
+{
+    qDebug() << "双击坐标：" << pos;
+}
+
+void MainWindow::onImageRightClicked(const QPointF& pos)
+{
+    qDebug() << "右键坐标：" << pos;
+}
+
+void MainWindow::onImageMouseMoved(const QPointF& pos)
+{
+    qDebug() << "鼠标位置：" << pos;
+}
 
 void MainWindow::openImage()
 {

@@ -16,7 +16,7 @@ CMakeUserPresets.json
 conan/generators/
 _deps/
 third_party
-
+.cache
 # Visual Studio files
 .vs/
 *.sln

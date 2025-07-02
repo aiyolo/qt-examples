@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QFileDialog>
@@ -16,6 +16,9 @@ public:
 
 private slots:
     void openImage();
+    void onImageDoubleClicked(const QPointF& pos);
+    void onImageRightClicked(const QPointF& pos);
+    void onImageMouseMoved(const QPointF& pos);
 
 private:
     Ui::MainWindow ui;
