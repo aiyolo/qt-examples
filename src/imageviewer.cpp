@@ -22,6 +22,7 @@ void ImageViewer::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
 
     if (!m_image.isNull())
     {
@@ -82,6 +83,7 @@ void ImageViewer::mouseMoveEvent(QMouseEvent* event)
 
     if (!m_image.isNull())
     {
+        qDebug() << "ImageViewer::mouseMoveEvent" << event->pos();
         emit mouseMoved(mapToImage(event->pos()));
     }
 }
