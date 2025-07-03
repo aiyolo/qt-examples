@@ -79,7 +79,7 @@ void ImageViewer::mouseMoveEvent(QMouseEvent* event)
         m_lastMousePos = event->pos();
         update();
     }
-    
+
     if (!m_image.isNull())
     {
         emit mouseMoved(mapToImage(event->pos()));
@@ -143,7 +143,7 @@ void ImageViewer::fitToView()
         double offsetY = (height() - imageHeight) / 2.0;
         m_transform.translate(offsetX / scale, offsetY / scale);
 #endif
-        auto delta = (rect().center() - mapFromImage(m_image.rect().center())) / 2;
+        auto delta = (rect().center() - mapFromImage(m_image.rect().center())) ;
         m_transform.translate(delta.x() / getScale(), delta.y() / getScale());
     }
 }
