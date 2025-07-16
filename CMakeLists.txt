@@ -10,9 +10,10 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt5)
 find_package(OpenCV)
-
+find_package(fmt)
 
 add_subdirectory(qtimageviewer)
 add_subdirectory(qtoutlogger)
+add_subdirectory(imagestorageservice)
 
 
