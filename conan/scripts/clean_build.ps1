@@ -1,1 +1,0 @@
-Remove-Item -Path build -Recurse -Force

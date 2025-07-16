@@ -1,1 +1,0 @@
-cmake --preset multi-config

@@ -1,114 +1,107 @@
 {
-    "version": 3,
-    "configurePresets": [
-        {
-            "name": "base",
-            "toolchainFile": "conan\\generators\\conan_toolchain.cmake",
-            "hidden": true,
-            "cacheVariables": {
-                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-                "CMAKE_C_COMPILER": "cl",
-                "CMAKE_CXX_COMPILER": "cl"
-            }
-        },
-        {
-            "name": "multi-config",
-            "displayName": "Ninja Multi-Config",
-            "description": "Ninja Multi-Config",
-            "inherits": [
-                "base"
-            ],
-            "generator": "Ninja Multi-Config",
-            "cacheVariables": {
-                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
-            },
-            "toolset": {
-                "value": "v142",
-                "strategy": "external"
-            },
-            "architecture": {
-                "value": "x64",
-                "strategy": "external"
-            },
-            "binaryDir": "${sourceDir}\\build\\${presetName}"
-        },
-        {
-            "name": "vs2019",
-            "displayName": "vs2019 config",
-            "description": "vs2019 config",
-            "inherits": [
-                "base"
-            ],
-            "generator": "Visual Studio 16 2019",
-            "cacheVariables": {
-                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
-            },
-            "architecture": {
-                "value": "x64",
-                "strategy": "external"
-            },
-            "binaryDir": "${sourceDir}\\build\\${presetName}"
-        },
-        {
-            "name": "vs2022",
-            "displayName": "vs2022 config",
-            "description": "vs2022 config",
-            "inherits": [
-                "base"
-            ],
-            "generator": "Visual Studio 17 2022",
-            "cacheVariables": {
-                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
-            },
-            "architecture": {
-                "value": "x64",
-                "strategy": "external"
-            },
-            "binaryDir": "${sourceDir}\\build\\${presetName}"
-        },
-        {
-            "name": "Clang 17.0.0 arm64-apple-darwin24.5.0",
-            "displayName": "Clang 17.0.0 arm64-apple-darwin24.5.0",
-            "description": "正在使用编译器: C = /usr/bin/clang, CXX = /usr/bin/clang++",
-            "binaryDir": "${sourceDir}/out/build/${presetName}",
-            "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-                "CMAKE_C_COMPILER": "/usr/bin/clang",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
-        }
-    ],
-    "buildPresets": [
-        {
-            "name": "multi-debug",
-            "configurePreset": "multi-config",
-            "configuration": "Debug"
-        },
-        {
-            "name": "multi-release",
-            "configurePreset": "multi-config",
-            "configuration": "Release"
-        },
-        {
-            "name": "vs2019-debug",
-            "configurePreset": "vs2019",
-            "configuration": "Debug"
-        },
-        {
-            "name": "vs2019-release",
-            "configurePreset": "vs2019",
-            "configuration": "Release"
-        },
-        {
-            "name": "vs2022-debug",
-            "configurePreset": "vs2022",
-            "configuration": "Debug"
-        },
-        {
-            "name": "vs2022-release",
-            "configurePreset": "vs2022",
-            "configuration": "Release"
-        }
-    ]
+  "version": 4,
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "toolchainFile": ".deps/conan_toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "windows",
+      "displayName": "Windows",
+      "description": "Windows configuration with Ninja Multi-Config",
+      "inherits": ["base"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "generator": "Ninja Multi-Config",
+      "toolset": {
+        "value": "v142",
+        "strategy": "external"
+      },
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "binaryDir": "${sourceDir}/build"
+    },
+    {
+      "name": "linux",
+      "displayName": "Linux",
+      "description": "Linux configuration with GCC",
+      "inherits": ["base"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      },
+      "binaryDir": "${sourceDir}/build"
+    },
+    {
+      "name": "macos",
+      "displayName": "macOS",
+      "description": "macOS configuration with Clang",
+      "inherits": ["base"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      },
+      "binaryDir": "${sourceDir}/build"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "windows-debug",
+      "configurePreset": "windows",
+      "configuration": "Debug",
+      "displayName": "Windows Debug"
+    },
+    {
+      "name": "windows-release",
+      "configurePreset": "windows",
+      "configuration": "Release",
+      "displayName": "Windows Release"
+    },
+    {
+      "name": "linux-debug",
+      "configurePreset": "linux",
+      "configuration": "Debug",
+      "displayName": "Linux Debug"
+    },
+    {
+      "name": "linux-release",
+      "configurePreset": "linux",
+      "configuration": "Release",
+      "displayName": "Linux Release"
+    },
+    {
+      "name": "macos-debug",
+      "configurePreset": "macos",
+      "configuration": "Debug",
+      "displayName": "macOS Debug"
+    },
+    {
+      "name": "macos-release",
+      "configurePreset": "macos",
+      "configuration": "Release",
+      "displayName": "macOS Release"
+    }
+  ]
 }

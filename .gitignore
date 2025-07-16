@@ -15,8 +15,8 @@ CPackSourceConfig.cmake
 CMakeUserPresets.json
 conan/generators/
 _deps/
-third_party
-.cache
+.deps/
+
 # Visual Studio files
 .vs/
 *.sln
