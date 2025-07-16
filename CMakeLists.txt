@@ -13,5 +13,6 @@ find_package(OpenCV)
 
 
 add_subdirectory(qtimageviewer)
+add_subdirectory(qtoutlogger)
 
 
