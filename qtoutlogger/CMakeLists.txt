@@ -8,6 +8,7 @@ file(GLOB_RECURSE RCCFILES src/*.qrc)
 add_executable(${PROJECT_NAME} WIN32 ${HEADERS} ${SOURCES} ${UIFILES} ${RCCFILES})
 target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::Gui Qt5::Core
     opencv::opencv
+    fmt::fmt
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
