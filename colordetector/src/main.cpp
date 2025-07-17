@@ -2,6 +2,7 @@
 #include <fstream>
 #include <opencv2/core.hpp>
 #include <opencv2/core/operations.hpp>
+#include <opencv2/core/types.hpp>
 #include <opencv2/opencv.hpp>
 #include <fmt/format.h>
 #include <sstream>
@@ -35,6 +36,11 @@ int main()
 
     auto diff = v1 - v2;
 
-    cv::Mat m = cv::Mat::eye(3, 3, CV_32F);
-    write_array_to_file("out.txt", cv::Mat(diff));
+    cv::Vec3b b1(1, 2, 3);
+    cv::Vec3b b2(4, 5, 6);
+    // sub will cause saturate cast
+    auto diff0 = b2 - b1;
+    auto diff2 = cv::norm(b1 - b2);
+    auto diff3 = cv::normL2Sqr<uchar, uchar>(diff0.val, 3);
+    fmt::print("diff: {}\n", diff3);
 }
