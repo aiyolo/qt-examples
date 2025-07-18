@@ -12,9 +12,5 @@ find_package(Qt5)
 find_package(OpenCV)
 find_package(fmt)
 
-add_subdirectory(qtimageviewer)
-add_subdirectory(qtoutlogger)
-add_subdirectory(imagestorageservice)
-add_subdirectory(colordetector)
-
-
+add_subdirectory(apps)
+add_subdirectory(libs)

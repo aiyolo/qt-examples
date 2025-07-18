@@ -1,0 +1,5 @@
+add_subdirectory(qtimageviewer)
+add_subdirectory(qtoutlogger)
+add_subdirectory(imagestorageservice)
+add_subdirectory(colordetector)
+
