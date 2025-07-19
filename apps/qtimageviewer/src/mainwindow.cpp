@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include <QDebug>
-#include "SimpleImageViewer/SimpleImageViewer.h"
+#include "simpleimageviewer/SimpleImageViewer.h"
 
 MainWindow::MainWindow(QWidget* parent)
   : QMainWindow(parent)
