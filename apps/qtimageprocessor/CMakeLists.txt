@@ -1,7 +1,30 @@
 project(qtimageprocessor)
 
-file(GLOB_RECURSE HEADERS src/*.h)
-file(GLOB_RECURSE SOURCES src/*.cpp)
+set(HEADERS
+    src/imageprocessor.h
+    src/imageprocessorwindow.h
+    src/algorithmparams.h
+    src/imagealgorithm.h
+    src/bluralgorithm.h
+    src/edgedetectionalgorithm.h
+    src/brightnesscontrastalgorithm.h
+    src/grayscalealgorithm.h
+    src/algorithmfactory.h
+)
+
+set(SOURCES
+    src/main.cpp
+    src/imageprocessor.cpp
+    src/imageprocessorwindow.cpp
+    src/algorithmparams.cpp
+    src/imagealgorithm.cpp
+    src/bluralgorithm.cpp
+    src/edgedetectionalgorithm.cpp
+    src/brightnesscontrastalgorithm.cpp
+    src/grayscalealgorithm.cpp
+    src/algorithmfactory.cpp
+)
+
 file(GLOB_RECURSE UIFILES src/*.ui)
 file(GLOB_RECURSE RCCFILES src/*.qrc)
 

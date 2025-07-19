@@ -1,12 +1,10 @@
 #include "imageprocessor.h"
+#include "algorithmparams.h"
+#include "algorithmfactory.h"
 #include <opencv2/imgproc.hpp>
 
-ImageProcessor::ImageProcessor()
-    : m_algorithm(Blur)
-    , m_blurKernelSize(5)
-    , m_edgeThreshold(100)
-    , m_brightness(0)
-    , m_contrast(1.0)
+ImageProcessor::ImageProcessor(AlgorithmParams *params)
+    : m_params(params ? params : new AlgorithmParams())
 {
 }
 
@@ -23,88 +21,16 @@ QImage ImageProcessor::processImage(const QImage& image)
 
     cv::Mat dst;
 
-    switch (m_algorithm) {
-    case Blur:
-        cv::GaussianBlur(src, dst, cv::Size(m_blurKernelSize, m_blurKernelSize), 0);
-        break;
+    // 使用算法工厂创建对应的算法
+    AlgorithmFactory& factory = AlgorithmFactory::instance();
+    ImageAlgorithm* algorithm = factory.createAlgorithm(m_params->algorithm());
 
-    case EdgeDetection:
-        if (src.channels() == 3) {
-            cv::cvtColor(src, src, cv::COLOR_BGR2GRAY);
-        }
-        cv::Canny(src, dst, m_edgeThreshold, m_edgeThreshold * 2);
-        cv::cvtColor(dst, dst, cv::COLOR_GRAY2BGR);
-        break;
-
-    case BrightnessContrast:
-        dst = src.clone();
-        dst.convertTo(dst, -1, m_contrast, m_brightness);
-        break;
-
-    case Grayscale:
-        if (src.channels() == 3) {
-            cv::cvtColor(src, dst, cv::COLOR_BGR2GRAY);
-            cv::cvtColor(dst, dst, cv::COLOR_GRAY2BGR);
-        } else {
-            dst = src.clone();
-        }
-        break;
+    if (algorithm) {
+        dst = algorithm->process(src, m_params);
+        delete algorithm;
     }
 
     return cvMatToQImage(dst);
-}
-
-void ImageProcessor::setAlgorithm(Algorithm algorithm)
-{
-    m_algorithm = algorithm;
-}
-
-ImageProcessor::Algorithm ImageProcessor::getAlgorithm() const
-{
-    return m_algorithm;
-}
-
-void ImageProcessor::setBlurKernelSize(int size)
-{
-    m_blurKernelSize = size;
-    if (m_blurKernelSize % 2 == 0) {
-        m_blurKernelSize++;  // 确保是奇数
-    }
-}
-
-int ImageProcessor::getBlurKernelSize() const
-{
-    return m_blurKernelSize;
-}
-
-void ImageProcessor::setEdgeThreshold(int threshold)
-{
-    m_edgeThreshold = threshold;
-}
-
-int ImageProcessor::getEdgeThreshold() const
-{
-    return m_edgeThreshold;
-}
-
-void ImageProcessor::setBrightness(int brightness)
-{
-    m_brightness = brightness;
-}
-
-int ImageProcessor::getBrightness() const
-{
-    return m_brightness;
-}
-
-void ImageProcessor::setContrast(double contrast)
-{
-    m_contrast = contrast;
-}
-
-double ImageProcessor::getContrast() const
-{
-    return m_contrast;
 }
 
 cv::Mat ImageProcessor::qImageToCvMat(const QImage& image)

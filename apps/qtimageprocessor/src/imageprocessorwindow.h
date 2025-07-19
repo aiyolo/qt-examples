@@ -2,14 +2,15 @@
 
 #include <QMainWindow>
 #include <QImage>
+#include <QWidget>
+#include <QVBoxLayout>
 
 class SimpleImageViewer;
 class ImageProcessor;
+class AlgorithmParams;
 class QComboBox;
-class QSlider;
-class QSpinBox;
-class QDoubleSpinBox;
 class QPushButton;
+class QScrollArea;
 
 class ImageProcessorWindow : public QMainWindow
 {
@@ -25,10 +26,6 @@ private slots:
     void resetToOriginal();
     void updateProcessedImage();
     void onAlgorithmChanged(int index);
-    void onBlurKernelChanged(int value);
-    void onEdgeThresholdChanged(int value);
-    void onBrightnessChanged(int value);
-    void onContrastChanged(double value);
 
 private:
     void setupConnections();
@@ -38,18 +35,14 @@ private:
     SimpleImageViewer* m_originalViewer;
     SimpleImageViewer* m_processedViewer;
     ImageProcessor* m_imageProcessor;
+    AlgorithmParams* m_algorithmParams;
     QImage m_originalImage;
 
     // 控件指针
     QComboBox* m_algorithmCombo;
-    QSlider* m_blurSlider;
-    QSpinBox* m_blurSpin;
-    QSlider* m_edgeSlider;
-    QSpinBox* m_edgeSpin;
-    QSlider* m_brightnessSlider;
-    QSpinBox* m_brightnessSpin;
-    QSlider* m_contrastSlider;
-    QDoubleSpinBox* m_contrastSpin;
+    QWidget* m_parameterWidget;
+    QVBoxLayout* m_parameterLayout;
+    QScrollArea* m_parameterScrollArea;
     QPushButton* m_openButton;
     QPushButton* m_saveButton;
     QPushButton* m_resetButton;
