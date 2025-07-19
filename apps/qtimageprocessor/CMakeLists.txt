@@ -10,6 +10,7 @@ set(HEADERS
     src/brightnesscontrastalgorithm.h
     src/grayscalealgorithm.h
     src/algorithmfactory.h
+    src/algorithmparameters.h
 )
 
 set(SOURCES
@@ -23,6 +24,7 @@ set(SOURCES
     src/brightnesscontrastalgorithm.cpp
     src/grayscalealgorithm.cpp
     src/algorithmfactory.cpp
+    src/algorithmparameters.cpp
 )
 
 file(GLOB_RECURSE UIFILES src/*.ui)

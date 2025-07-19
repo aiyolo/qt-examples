@@ -55,19 +55,12 @@ void AlgorithmFactory::registerAlgorithm(ImageAlgorithm* algorithm)
 
 ImageAlgorithm* AlgorithmFactory::createAlgorithm(AlgorithmParams::Algorithm type)
 {
-    if (m_algorithms.contains(type)) {
-        // 返回算法的副本
-        if (type == AlgorithmParams::Blur) {
-            return new BlurAlgorithm();
-        } else if (type == AlgorithmParams::EdgeDetection) {
-            return new EdgeDetectionAlgorithm();
-        } else if (type == AlgorithmParams::BrightnessContrast) {
-            return new BrightnessContrastAlgorithm();
-        } else if (type == AlgorithmParams::Grayscale) {
-            return new GrayscaleAlgorithm();
-        }
+    if (!m_algorithms.contains(type)) {
+        return nullptr;
     }
-    return nullptr;
+
+    // 使用原型模式创建新实例
+    return m_algorithms[type]->clone();
 }
 
 QStringList AlgorithmFactory::algorithmNames() const

@@ -1,19 +1,18 @@
 #include "edgedetectionalgorithm.h"
+#include "algorithmparameters.h"
 #include <opencv2/imgproc.hpp>
 
 EdgeDetectionAlgorithm::EdgeDetectionAlgorithm()
-    : m_threshold(100)
 {
 }
 
-cv::Mat EdgeDetectionAlgorithm::process(const cv::Mat& image, AlgorithmParams* params)
+cv::Mat EdgeDetectionAlgorithm::process(const cv::Mat& image, AlgorithmParameters* params)
 {
     if (image.empty()) {
         return cv::Mat();
     }
 
     cv::Mat gray, edges;
-    int threshold = params ? params->edgeThreshold() : m_threshold;
 
     // 转换为灰度图
     if (image.channels() == 3) {
@@ -22,13 +21,22 @@ cv::Mat EdgeDetectionAlgorithm::process(const cv::Mat& image, AlgorithmParams* p
         gray = image.clone();
     }
 
-    // 边缘检测
+    int threshold = 100;
+    if (params) {
+        EdgeDetectionParameters* edgeParams = dynamic_cast<EdgeDetectionParameters*>(params);
+        if (edgeParams) {
+            threshold = edgeParams->threshold();
+        }
+    }
+
+    // 使用Canny边缘检测
     cv::Canny(gray, edges, threshold, threshold * 2);
 
-    // 转回BGR格式
-    cv::cvtColor(edges, edges, cv::COLOR_GRAY2BGR);
+    // 转换回3通道以便显示
+    cv::Mat result;
+    cv::cvtColor(edges, result, cv::COLOR_GRAY2BGR);
 
-    return edges;
+    return result;
 }
 
 QString EdgeDetectionAlgorithm::name() const
@@ -38,19 +46,16 @@ QString EdgeDetectionAlgorithm::name() const
 
 QWidget* EdgeDetectionAlgorithm::createParameterWidget(QWidget* parent)
 {
-    QWidget* widget = new QWidget(parent);
-    QFormLayout* layout = new QFormLayout(widget);
-
-    QSpinBox* thresholdSpin = new QSpinBox(widget);
-    thresholdSpin->setRange(0, 255);
-    thresholdSpin->setValue(m_threshold);
-
-    layout->addRow("阈值:", thresholdSpin);
-
-    return widget;
+    EdgeDetectionParameters* params = new EdgeDetectionParameters();
+    return params->createParameterWidget(parent);
 }
 
-void EdgeDetectionAlgorithm::setThreshold(int threshold)
+ImageAlgorithm* EdgeDetectionAlgorithm::clone() const
 {
-    m_threshold = qBound(0, threshold, 255);
+    return new EdgeDetectionAlgorithm();
+}
+
+AlgorithmParameters* EdgeDetectionAlgorithm::createParameters() const
+{
+    return new EdgeDetectionParameters();
 }

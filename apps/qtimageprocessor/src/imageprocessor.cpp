@@ -1,16 +1,19 @@
 #include "imageprocessor.h"
-#include "algorithmparams.h"
 #include "algorithmfactory.h"
+#include "algorithmparameters.h"
 #include <opencv2/imgproc.hpp>
+#include <memory>
 
-ImageProcessor::ImageProcessor(AlgorithmParams *params)
-    : m_params(params ? params : new AlgorithmParams())
-{
-}
+ImageProcessor::ImageProcessor(std::unique_ptr<AlgorithmParameters> params)
+    : m_parameters(std::move(params)) {}
+
+ImageProcessor::~ImageProcessor() = default;
 
 QImage ImageProcessor::processImage(const QImage& image)
 {
-    if (image.isNull()) {
+    m_lastError.clear();
+
+    if (image.isNull() || !m_parameters) {
         return QImage();
     }
 
@@ -19,18 +22,26 @@ QImage ImageProcessor::processImage(const QImage& image)
         return QImage();
     }
 
-    cv::Mat dst;
+    try {
+        AlgorithmFactory& factory = AlgorithmFactory::instance();
+        AlgorithmParams::Algorithm algorithmType = m_parameters->algorithmType();
 
-    // 使用算法工厂创建对应的算法
-    AlgorithmFactory& factory = AlgorithmFactory::instance();
-    ImageAlgorithm* algorithm = factory.createAlgorithm(m_params->algorithm());
+        std::unique_ptr<ImageAlgorithm> algorithm(factory.createAlgorithm(algorithmType));
+        if (!algorithm) {
+            return QImage();
+        }
 
-    if (algorithm) {
-        dst = algorithm->process(src, m_params);
-        delete algorithm;
+        cv::Mat dst = algorithm->process(src, m_parameters.get());
+        if (dst.empty()) {
+            return QImage();
+        }
+
+        return cvMatToQImage(dst);
+
+    } catch (const std::exception& e) {
+        m_lastError = e.what();
+        return QImage();
     }
-
-    return cvMatToQImage(dst);
 }
 
 cv::Mat ImageProcessor::qImageToCvMat(const QImage& image)
@@ -57,4 +68,15 @@ QImage ImageProcessor::cvMatToQImage(const cv::Mat& mat)
 
     return QImage(rgb.data, rgb.cols, rgb.rows, rgb.step,
                   QImage::Format_RGB888).copy();
+}
+
+void ImageProcessor::setParameters(std::unique_ptr<AlgorithmParameters> params)
+{
+    m_parameters = std::move(params);
+    m_lastError.clear();
+}
+
+QString ImageProcessor::lastError() const
+{
+    return m_lastError;
 }

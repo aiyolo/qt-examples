@@ -32,9 +32,6 @@ void AlgorithmParams::setBlurKernelSize(int size)
 {
     if (m_blurKernelSize != size) {
         m_blurKernelSize = size;
-        if (m_blurKernelSize % 2 == 0) {
-            m_blurKernelSize++;  // 确保是奇数
-        }
         emit parametersChanged();
     }
 }
