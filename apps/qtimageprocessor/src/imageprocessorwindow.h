@@ -9,8 +9,10 @@ class QComboBox;
 class QPushButton;
 class QWidget;
 class QVBoxLayout;
-class AlgorithmParameters;
+class ImageProcessingService;
+class IParameterProvider;
 
+// 主窗口 - 遵循单一职责原则，只负责UI交互
 class ImageProcessorWindow : public QMainWindow
 {
     Q_OBJECT
@@ -22,7 +24,7 @@ public:
 private slots:
     void openImage();
     void saveProcessedImage();
-    void onAlgorithmChanged(int index);
+    void onProcessorChanged(int index);
     void onParametersChanged();
 
 private:
@@ -31,14 +33,16 @@ private:
     void processAndDisplay();
     void clearParameterWidgets();
 
+    // UI 组件
     SimpleImageViewer* m_originalViewer;
     SimpleImageViewer* m_processedViewer;
-    std::unique_ptr<AlgorithmParameters> m_algorithmParams;
-    std::unique_ptr<class ImageProcessor> m_imageProcessor;
-    QImage m_originalImage;
-    QComboBox* m_algorithmCombo;
+    QComboBox* m_processorCombo;
     QWidget* m_parameterWidget;
     QVBoxLayout* m_parameterLayout;
     QPushButton* m_openButton;
     QPushButton* m_saveButton;
+
+    // 业务逻辑 - 使用组合而不是继承
+    std::unique_ptr<ImageProcessingService> m_processingService;
+    QImage m_originalImage;
 };

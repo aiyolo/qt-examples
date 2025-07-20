@@ -7,5 +7,6 @@ conan install . -s build_type=Release -pr=mac --build=missing
 
 ## 编译
 ```
+cmake --preset macos-debug
 cmake --build --preset macos-debug
 ```
