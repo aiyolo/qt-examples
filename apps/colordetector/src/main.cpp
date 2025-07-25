@@ -5,6 +5,7 @@
 #include <iostream>
 #include <opencv2/core.hpp>
 #include <opencv2/core/cvdef.h>
+#include <opencv2/core/hal/interface.h>
 #include <opencv2/core/operations.hpp>
 #include <opencv2/core/types.hpp>
 #include <opencv2/opencv.hpp>
@@ -156,7 +157,30 @@ void test_mask()
               << rect.height << std::endl;
 }
 
+cv::Mat cast_to(cv::Mat input, double v_min, double v_max)
+{
+    auto alpha = (255 + 255) / (v_max - v_min);
+    auto beta = -255 - alpha * v_min;
+    cv::Mat result;
+    input.convertTo(result, CV_8U, alpha, beta);
+    return result;
+}
+void test_convert()
+{
+    cv::Mat a = cv::Mat::zeros(5, 5, CV_32F);
+    cv::randn(a, 0, 0.1);
+    cv::print(a);
+    std::cout << std::endl;
+
+    double v_min, v_max;
+    cv::minMaxIdx(a, &v_min, &v_max);
+    std::cout << "v_min: " << v_min << ",v_max:" << v_max << std::endl;
+
+    auto result = cast_to(a, -0.1, 0.1);
+    cv::print(result);
+}
+
 int main()
 {
-    test_mask();
+    test_convert();
 }
