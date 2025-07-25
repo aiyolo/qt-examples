@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <fstream>
 #include <iostream>
@@ -106,10 +107,18 @@ void normalAtan()
     r = std::atan2(y1, x1);
 }
 
-int main()
+void test_print()
 {
-    test_phase();
-    std::cout << std::endl;
+    cv::Vec3b b1(1, 2, 3);
+    cv::Vec3b b2(4, 5, 6);
+    // sub will cause saturate cast
+    auto diff0 = b2 - b1;
+    auto diff2 = cv::norm(b1 - b2);
+    auto diff3 = cv::normL2Sqr<uchar, uchar>(diff0.val, 3);
+}
+
+void compare_fastatan()
+{
     std::cout << std::atan2(1, 1) << "," << std::atan2(1, -1) << ","
               << std::atan2(-1, -1) << "," << std::atan2(-1, 1);
 
@@ -126,18 +135,28 @@ int main()
         normalAtan();
     }
     std::cout << "normalAtan: " << timer1.elapsed() << std::endl;
+}
 
-    //     fmt::print("Hello World!\n");
-    //     cv::Vec3i v1(1, 2, 3);
-    //     cv::Vec3i v2(4, 5, 6);
+void test_mask()
+{
+    cv::Mat mat1 = cv::Mat::eye(4, 4, CV_32FC1);
+    mat1.at<float>(0, 0) = NAN;
+    mat1.at<float>(0, 1) = NAN;
+    mat1.at<float>(0, 2) = NAN;
+    mat1.at<float>(0, 3) = NAN;
 
-    //     auto diff = v1 - v2;
+    // mat1.at<float>(1, 0) = NAN;
+    // mat1.at<float>(2, 0) = NAN;
+    // mat1.at<float>(3, 0) = NAN;
 
-    //     cv::Vec3b b1(1, 2, 3);
-    //     cv::Vec3b b2(4, 5, 6);
-    //     // sub will cause saturate cast
-    //     auto diff0 = b2 - b1;
-    //     auto diff2 = cv::norm(b1 - b2);
-    //     auto diff3 = cv::normL2Sqr<uchar, uchar>(diff0.val, 3);
-    //     fmt::print("diff: {}\n", diff3);
+    cv::Mat mask = mat1 == mat1;
+    cv::print(mask);
+    cv::Rect rect = cv::boundingRect(mask);
+    std::cout << rect.x << "," << rect.y << "," << rect.width << ","
+              << rect.height << std::endl;
+}
+
+int main()
+{
+    test_mask();
 }
