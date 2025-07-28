@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <QDebug>
 #include <cmath>
 #include <cstdio>
 #include <fstream>
@@ -8,12 +9,14 @@
 #include <opencv2/core/hal/interface.h>
 #include <opencv2/core/operations.hpp>
 #include <opencv2/core/types.hpp>
+#include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
 #include <fmt/format.h>
 #include <qelapsedtimer.h>
 #include <sstream>
 #include <opencv2/core/hal/hal.hpp>
 #include <qtimer>
+#include <QImage>
 
 // fmt print cv::Vec3i
 
@@ -179,8 +182,31 @@ void test_convert()
     auto result = cast_to(a, -0.1, 0.1);
     cv::print(result);
 }
+void test_qimage()
+{
+    auto processed_qimage =
+      QImage("C:/Users/zhu/Downloads/waviness/waviness.png");
+    qDebug() << processed_qimage.isNull();
+    qDebug() << processed_qimage.format();
+    qDebug() << processed_qimage.width() << processed_qimage.height();
+    // if (processed_qimage.isNull()) {
+    //     processed_qimage = QImage(processed_qimage.width(),
+    //                               processed_qimage.height(),
+    //                               QImage::Format_RGB888);
+    //     processed_qimage.fill(Qt::black);
+    // }
+    processed_qimage.save("new.png");
+}
 
 int main()
 {
-    test_convert();
+    // cv::Mat mat =
+    //   cv::imread("C:/Users/zhu/Downloads/waviness.tiff",
+    //   cv::IMREAD_UNCHANGED);
+    // qDebug() << mat.cols << "," << mat.rows;
+    // auto mask = mat == mat;
+    // auto rect = cv::boundingRect(mask);
+    // qDebug() << rect.x << ", " << rect.y << "," << rect.width << ","
+    //          << rect.height;
+    test_qimage();
 }
