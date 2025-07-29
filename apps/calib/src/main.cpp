@@ -23,7 +23,6 @@
 #include <filesystem>
 #include <climits>
 #include <streambuf>
-#include <unistd.h>
 #include <fcntl.h>
 
 
@@ -40,8 +39,5 @@ void test_checkboard()
 
 int main()
 {
-    // 初始化OpenCV日志重定向到文件
-    initOpenCVLogging("logs/opencv_calib.log");
-
     test_checkboard();
 }

@@ -1,5 +1,7 @@
-#include <algorithm>
+﻿#include <algorithm>
 #include <QDebug>
+#include <QFileInfo>
+#include <QDir>
 #include <cmath>
 #include <cstdio>
 #include <fstream>
@@ -198,6 +200,19 @@ void test_qimage()
     processed_qimage.save("new.png");
 }
 
+void test_save_image()
+{
+    cv::Mat mat(200, 200, CV_8UC3, cv::Scalar(0, 0, 0));
+    QString path = u8"中文路径/测试图片.png";
+    QFileInfo info(path);
+    auto dir = info.absolutePath();
+    qDebug() << "dir:" << dir;
+    if (!QDir(dir).exists()) {
+        QDir().mkpath(dir);
+    }
+    cv::imwrite(path.toLocal8Bit().toStdString(), mat);
+}
+
 int main()
 {
     // cv::Mat mat =
@@ -208,5 +223,5 @@ int main()
     // auto rect = cv::boundingRect(mask);
     // qDebug() << rect.x << ", " << rect.y << "," << rect.width << ","
     //          << rect.height;
-    test_qimage();
+    test_save_image();
 }
