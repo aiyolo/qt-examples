@@ -1,8 +1,6 @@
 # Database Admin Application
 set(TARGET_NAME databaseadmin)
 
-# Find required Qt packages
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets Sql Concurrent)
 
 # Collect source files
 set(SOURCES
@@ -38,3 +36,10 @@ target_include_directories(${TARGET_NAME} PRIVATE src)
 
 # Install executable
 install(TARGETS ${TARGET_NAME} DESTINATION bin)
+
+target_compile_definitions(${TARGET_NAME} PRIVATE
+    -DQT_MESSAGELOGCONTEXT
+)
+if(WIN32)
+    target_compile_options(${TARGET_NAME} PRIVATE "/utf-8")
+endif()
