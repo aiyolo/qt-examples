@@ -213,6 +213,97 @@ void test_save_image()
     cv::imwrite(path.toLocal8Bit().toStdString(), mat);
 }
 
+static cv::Mat cast_to_uint8(const cv::Mat& image, double v_min, double v_max)
+{
+    if (v_min == v_max) {
+        cv::minMaxIdx(image, &v_min, &v_max);
+        if (v_min == v_max) {
+            v_max = v_max + 1;
+            v_min = v_min - 1;
+        }
+    }
+    cv::Mat ret;
+    cv::multiply(image, 255. / (v_max - v_min), ret);
+    cv::add(ret, -255. * v_min / (v_max - v_min), ret);
+    ret.convertTo(ret, CV_8U);
+    return ret;
+}
+
+static QImage qimage_add_levels(
+  const cv::Mat& z,
+  double v_min,
+  double v_max,
+  cv::ColormapTypes color_map = cv::COLORMAP_VIRIDIS)
+{
+    auto result = cast_to_uint8(z, v_min, v_max);
+    cv::Mat dst;
+    cv::applyColorMap(result, dst, color_map);
+    cv::Mat alpha = z == z;
+    if (cv::countNonZero(alpha) == 0) {
+        QImage black_img = QImage(dst.cols, dst.rows, QImage::Format_RGB888);
+        black_img.fill(Qt::black);
+        return black_img;
+    }
+    QImage q_img = QImage(dst.cols, dst.rows, QImage::Format_RGBA8888);
+    cv::Mat bgraImage(dst.size(), CV_8UC4, q_img.bits());
+    cv::Mat channels[4];
+    cv::split(dst, channels);
+    std::swap(channels[0], channels[2]);
+    channels[3] = alpha;
+    cv::merge(channels, 4, bgraImage);
+    return q_img;
+}
+
+double computeMedianDepth(const cv::Mat& depthMat)
+{
+    if (depthMat.channels() != 1 || depthMat.type() != CV_64F) {
+        throw std::invalid_argument(
+          "Input must be a single-channel CV_64F matrix");
+    }
+
+    std::vector<double> depths;
+    depths.reserve(depthMat.total());
+    for (int i = 0; i < depthMat.rows; ++i) {
+        for (int j = 0; j < depthMat.cols; ++j) {
+            double val = depthMat.at<double>(i, j);
+            if (std::isfinite(val)) {
+                depths.push_back(val);
+            }
+        }
+    }
+
+    if (depths.empty()) {
+        throw std::runtime_error("No valid depth values found");
+    }
+
+    std::sort(depths.begin(), depths.end());
+
+    size_t size = depths.size();
+    if (size % 2 == 0) {
+        return (depths[size / 2 - 1] + depths[size / 2]) / 2.0;
+    } else {
+        return depths[size / 2];
+    }
+}
+void test_waviness()
+{
+
+    cv::Mat mat =
+      cv::imread("C:/Users/zhu/Downloads/waviness.tiff", cv::IMREAD_UNCHANGED);
+    double img_min = 0;
+    double img_max = 100. / 1000 / 1000;
+    double range = 10. / 1e6;
+    cv::minMaxIdx(mat, &img_min, &img_max);
+    // auto mean = (img_min + img_max) / 2;
+    auto mean = computeMedianDepth(mat);
+    qDebug() << "mean:" << mean;
+    auto low = mean - range / 2;
+    auto high = mean + range / 2;
+    qDebug() << "img_min:" << img_min << ",img_max:" << img_max;
+    auto q_img = qimage_add_levels(mat, low, high);
+    q_img.save("waviness.png");
+}
+
 int main()
 {
     // cv::Mat mat =
@@ -223,5 +314,6 @@ int main()
     // auto rect = cv::boundingRect(mask);
     // qDebug() << rect.x << ", " << rect.y << "," << rect.width << ","
     //          << rect.height;
-    test_save_image();
+    // test_save_image();
+    test_waviness();
 }
