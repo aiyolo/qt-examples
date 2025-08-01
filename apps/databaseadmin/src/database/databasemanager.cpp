@@ -8,10 +8,11 @@
 
 int DatabaseManager::connectionCounter = 0;
 
-DatabaseManager::DatabaseManager(QObject *parent)
-    : QObject(parent)
+DatabaseManager::DatabaseManager(QObject* parent)
+  : QObject(parent)
 {
-    m_connectionName = QString("DatabaseConnection_%1").arg(++connectionCounter);
+    m_connectionName =
+      QString("DatabaseConnection_%1").arg(++connectionCounter);
 }
 
 DatabaseManager::~DatabaseManager()
@@ -21,22 +22,34 @@ DatabaseManager::~DatabaseManager()
     }
 }
 
-bool DatabaseManager::connectToDatabase(const QString &host, const QString &database,
-                                       const QString &username, const QString &password, int port)
+bool DatabaseManager::connectToDatabase(const QString& host,
+                                        const QString& database,
+                                        const QString& username,
+                                        const QString& password,
+                                        int port)
 {
-    m_database = QSqlDatabase::addDatabase("QPSQL", m_connectionName);
+    m_database = QSqlDatabase::addDatabase("QODBC3", m_connectionName);
+    qDebug() << "Driver:" << m_database.isValid();
+
+#if 1
     m_database.setHostName(host);
     m_database.setDatabaseName(database);
     m_database.setUserName(username);
     m_database.setPassword(password);
-    m_database.setPort(port);
+    // m_database.setPort(port);
+#else
+// QString conn = "DRIVER={SQL Server};SERVER=%1;DATABASE=%2;UID=%3;PWD=%4";
+// auto name = conn.arg(host).arg(database).arg(username).arg(password);
+// m_database.setDatabaseName(name);
+#endif
 
     bool success = m_database.open();
     emit connectionStatusChanged(success);
 
     if (!success) {
         emit queryError(m_database.lastError().text());
-        qDebug() << "Database connection failed:" << m_database.lastError().text();
+        qDebug() << "Database connection failed:"
+                 << m_database.lastError().text();
     } else {
         // Create tables if they don't exist
         createTables();
@@ -67,7 +80,7 @@ QStringList DatabaseManager::getTableNames() const
     return tables;
 }
 
-QSqlQuery DatabaseManager::executeQuery(const QString &query)
+QSqlQuery DatabaseManager::executeQuery(const QString& query)
 {
     QSqlQuery sqlQuery(m_database);
     sqlQuery.exec(query);
@@ -80,7 +93,7 @@ QSqlQuery DatabaseManager::executeQuery(const QString &query)
     return sqlQuery;
 }
 
-QFuture<QSqlQuery> DatabaseManager::executeQueryAsync(const QString &query)
+QFuture<QSqlQuery> DatabaseManager::executeQueryAsync(const QString& query)
 {
     return QtConcurrent::run([this, query]() -> QSqlQuery {
         QSqlDatabase db = QSqlDatabase::database(m_connectionName);
@@ -90,7 +103,8 @@ QFuture<QSqlQuery> DatabaseManager::executeQueryAsync(const QString &query)
     });
 }
 
-QFuture<bool> DatabaseManager::insertRecordAsync(const QString &table, const QVariantMap &data)
+QFuture<bool> DatabaseManager::insertRecordAsync(const QString& table,
+                                                 const QVariantMap& data)
 {
     return QtConcurrent::run([this, table, data]() -> bool {
         QSqlDatabase db = QSqlDatabase::database(m_connectionName);
@@ -107,9 +121,9 @@ QFuture<bool> DatabaseManager::insertRecordAsync(const QString &table, const QVa
         }
 
         QString sql = QString("INSERT INTO %1 (%2) VALUES (%3)")
-                     .arg(table)
-                     .arg(fields.join(", "))
-                     .arg(placeholders.join(", "));
+                        .arg(table)
+                        .arg(fields.join(", "))
+                        .arg(placeholders.join(", "));
 
         query.prepare(sql);
         for (int i = 0; i < fields.size(); ++i) {
@@ -125,7 +139,9 @@ QFuture<bool> DatabaseManager::insertRecordAsync(const QString &table, const QVa
     });
 }
 
-QFuture<bool> DatabaseManager::updateRecordAsync(const QString &table, const QVariantMap &data, const QString &condition)
+QFuture<bool> DatabaseManager::updateRecordAsync(const QString& table,
+                                                 const QVariantMap& data,
+                                                 const QString& condition)
 {
     return QtConcurrent::run([this, table, data, condition]() -> bool {
         QSqlDatabase db = QSqlDatabase::database(m_connectionName);
@@ -140,9 +156,9 @@ QFuture<bool> DatabaseManager::updateRecordAsync(const QString &table, const QVa
         }
 
         QString sql = QString("UPDATE %1 SET %2 WHERE %3")
-                     .arg(table)
-                     .arg(setClauses.join(", "))
-                     .arg(condition);
+                        .arg(table)
+                        .arg(setClauses.join(", "))
+                        .arg(condition);
 
         query.prepare(sql);
         for (auto it = data.begin(); it != data.end(); ++it) {
@@ -158,13 +174,15 @@ QFuture<bool> DatabaseManager::updateRecordAsync(const QString &table, const QVa
     });
 }
 
-QFuture<bool> DatabaseManager::deleteRecordAsync(const QString &table, const QString &condition)
+QFuture<bool> DatabaseManager::deleteRecordAsync(const QString& table,
+                                                 const QString& condition)
 {
     return QtConcurrent::run([this, table, condition]() -> bool {
         QSqlDatabase db = QSqlDatabase::database(m_connectionName);
         QSqlQuery query(db);
 
-        QString sql = QString("DELETE FROM %1 WHERE %2").arg(table).arg(condition);
+        QString sql =
+          QString("DELETE FROM %1 WHERE %2").arg(table).arg(condition);
         query.prepare(sql);
 
         bool success = query.exec();
@@ -214,7 +232,8 @@ bool DatabaseManager::createTables()
     )";
 
     if (!query.exec(createProjectsTable)) {
-        qDebug() << "Error creating projects table:" << query.lastError().text();
+        qDebug() << "Error creating projects table:"
+                 << query.lastError().text();
         return false;
     }
 

@@ -170,10 +170,10 @@ void MainWindow::connectToDatabase()
 
     // 使用默认配置连接数据库
     bool success = m_databaseManager->connectToDatabase(
-        "localhost",    // host
-        "testdb",       // database
-        "postgres",     // username
-        "password",     // password
+        "192.168.50.94",    // host
+        "sql",       // database
+        "hud_det01",     // username
+        "123",     // password
         5432           // port
     );
 
