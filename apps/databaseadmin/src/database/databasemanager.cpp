@@ -28,7 +28,7 @@ bool DatabaseManager::connectToDatabase(const QString& host,
                                         const QString& password,
                                         int port)
 {
-    m_database = QSqlDatabase::addDatabase("QODBC3", m_connectionName);
+    m_database = QSqlDatabase::addDatabase("QPSQL", m_connectionName);
     qDebug() << "Driver:" << m_database.isValid();
 
 #if 1

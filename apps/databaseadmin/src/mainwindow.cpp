@@ -170,9 +170,9 @@ void MainWindow::connectToDatabase()
 
     // 使用默认配置连接数据库
     bool success = m_databaseManager->connectToDatabase(
-        "192.168.50.94",    // host
-        "sql",       // database
-        "hud_det01",     // username
+        "127.0.0.1",    // host
+        "learnsql",       // database
+        "zhu",     // username
         "123",     // password
         5432           // port
     );
