@@ -11,25 +11,6 @@
 #include <net/if.h>
 #endif
 
-static int query_callback(int sock, const struct sockaddr* from, size_t addrlen,
-                         mdns_entry_type_t entry, uint16_t query_id, uint16_t rtype,
-                         uint16_t rclass, uint32_t ttl, const void* data, size_t size,
-                         size_t name_offset, size_t name_length, size_t record_offset,
-                         size_t record_length, void* user_data) {
-
-    char name_buffer[256];
-
-    if (rtype == MDNS_RECORDTYPE_PTR) {
-        mdns_string_t name = mdns_record_parse_ptr(data, size, record_offset, record_length,
-                                                   name_buffer, sizeof(name_buffer));
-
-        if (name.length > 0) {
-            printf("Service: %.*s\n", (int)name.length, name.str);
-        }
-    }
-
-    return 0;
-}
 
 static int service_callback(int sock, const struct sockaddr* from, size_t addrlen,
                            mdns_entry_type_t entry, uint16_t query_id, uint16_t rtype,
@@ -38,6 +19,8 @@ static int service_callback(int sock, const struct sockaddr* from, size_t addrle
                            size_t record_length, void* user_data) {
 
     char name_buffer[256];
+
+    printf("Service discovery response: %d\n", rtype);
 
     if (rtype == MDNS_RECORDTYPE_PTR) {
         mdns_string_t name = mdns_record_parse_ptr(data, size, record_offset, record_length,
@@ -105,7 +88,7 @@ int main() {
     }
 
     printf("\nService discovery completed.\n");
-    Sleep(100000);
+    // Sleep(100000);
     // Close socket and cleanup
     mdns_socket_close(sock);
 #ifdef _WIN32

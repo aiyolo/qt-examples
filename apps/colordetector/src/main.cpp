@@ -15,10 +15,12 @@
 #include <opencv2/opencv.hpp>
 #include <fmt/format.h>
 #include <qelapsedtimer.h>
+#include <qpixmap.h>
 #include <sstream>
 #include <opencv2/core/hal/hal.hpp>
 #include <qtimer>
 #include <QImage>
+#include <QRandomGenerator>
 
 // fmt print cv::Vec3i
 
@@ -304,6 +306,33 @@ void test_waviness()
     q_img.save("waviness.png");
 }
 
+void test_random_color()
+{
+    QColor color("");
+    qDebug() << color.isValid();
+    // color.setHsv(rand() % 360, 255, 255);
+    QRandomGenerator* rng = QRandomGenerator::global();
+
+    // HSV 参数范围
+    int hue = rng->bounded(0, 360); // 色调：全范围 (0-359)
+    int saturation =
+      rng->bounded(100, 200); // 饱和度：100-199，鲜艳但不过于刺眼
+    int value = rng->bounded(120, 180); // 明度：120-179，适中以保证对比度
+
+    color.setHsv(hue, saturation, value);
+    QImage img(100, 100, QImage::Format_ARGB32);
+    img.fill(color);
+    img.save("test.png");
+    QMap<int, QColor> colors;
+    colors.insert(0, QColor());
+    qDebug() << "size of colors: " << colors.size();
+    for (auto it : colors) {
+        // if (it.isValid()) {
+        qDebug() << "key: " << it.name();
+        // }
+    }
+}
+
 int main()
 {
     // cv::Mat mat =
@@ -315,5 +344,5 @@ int main()
     // qDebug() << rect.x << ", " << rect.y << "," << rect.width << ","
     //          << rect.height;
     // test_save_image();
-    test_waviness();
+    // test_waviness();
 }
