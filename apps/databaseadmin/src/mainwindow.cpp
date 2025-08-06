@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "dialogs/AddRecordDialog.h"
 #include <QApplication>
 #include <QSplitter>
 #include <QPushButton>
@@ -282,10 +283,44 @@ void MainWindow::addRecord()
         return;
     }
 
-    m_tableModel->insertRow(m_tableModel->rowCount());
-    QModelIndex index = m_tableModel->index(m_tableModel->rowCount() - 1, 0);
-    m_tableView->scrollTo(index);
-    m_tableView->setCurrentIndex(index);
+    // 创建添加记录对话框
+    AddRecordDialog dialog(m_currentTable, m_databaseManager->database(), this);
+    if (dialog.exec() == QDialog::Accepted) {
+        // 获取用户输入的数据
+        QMap<QString, QVariant> recordData = dialog.getRecordData();
+
+        if (recordData.isEmpty()) {
+            QMessageBox::warning(this, "警告", "没有输入任何数据");
+            return;
+        }
+
+        // 显示进度条
+        m_progressBar->setVisible(true);
+        m_progressBar->setRange(0, 0);
+        m_statusLabel->setText("正在添加记录...");
+
+        // 使用异步方式插入记录
+        QFuture<bool> future = m_databaseManager->insertRecordAsync(m_currentTable, recordData);
+        QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>(this);
+
+        connect(watcher, &QFutureWatcher<bool>::finished, [this, watcher]() {
+            bool success = watcher->result();
+            watcher->deleteLater();
+
+            m_progressBar->setVisible(false);
+
+            if (success) {
+                m_statusLabel->setText("记录添加成功");
+                // 刷新表格显示新添加的记录
+                m_tableModel->select();
+            } else {
+                m_statusLabel->setText("添加记录失败");
+                QMessageBox::critical(this, "错误", "添加记录失败，请检查输入数据");
+            }
+        });
+
+        watcher->setFuture(future);
+    }
 }
 
 void MainWindow::deleteRecord()

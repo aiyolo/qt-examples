@@ -10,6 +10,7 @@ set(SOURCES
     src/models/tablemodel.cpp
     src/delegates/checkboxdelegate.cpp
     src/delegates/buttondelegate.cpp
+    src/dialogs/AddRecordDialog.cpp
 )
 
 set(HEADERS
@@ -18,6 +19,7 @@ set(HEADERS
     src/models/tablemodel.h
     src/delegates/checkboxdelegate.h
     src/delegates/buttondelegate.h
+    src/dialogs/AddRecordDialog.h
 )
 
 # Create executable

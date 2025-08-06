@@ -107,7 +107,26 @@ QFuture<bool> DatabaseManager::insertRecordAsync(const QString& table,
                                                  const QVariantMap& data)
 {
     return QtConcurrent::run([this, table, data]() -> bool {
-        QSqlDatabase db = QSqlDatabase::database(m_connectionName);
+        // 创建新的数据库连接用于当前线程
+        QString threadConnectionName = m_connectionName + "_thread_" + QString::number((quint64)QThread::currentThreadId());
+
+        QSqlDatabase db;
+        if (!QSqlDatabase::contains(threadConnectionName)) {
+            db = QSqlDatabase::addDatabase("QPSQL", threadConnectionName);
+            db.setHostName(m_database.hostName());
+            db.setDatabaseName(m_database.databaseName());
+            db.setUserName(m_database.userName());
+            db.setPassword(m_database.password());
+            db.setPort(m_database.port());
+
+            if (!db.open()) {
+                qDebug() << "Thread database connection failed:" << db.lastError().text();
+                return false;
+            }
+        } else {
+            db = QSqlDatabase::database(threadConnectionName);
+        }
+
         QSqlQuery query(db);
 
         QStringList fields;
@@ -116,7 +135,7 @@ QFuture<bool> DatabaseManager::insertRecordAsync(const QString& table,
 
         for (auto it = data.begin(); it != data.end(); ++it) {
             fields.append(it.key());
-            placeholders.append(":" + it.key());
+            placeholders.append("?");
             values.append(it.value());
         }
 
@@ -125,15 +144,27 @@ QFuture<bool> DatabaseManager::insertRecordAsync(const QString& table,
                         .arg(fields.join(", "))
                         .arg(placeholders.join(", "));
 
+        qDebug() << "SQL:" << sql;
+        qDebug() << "Values:" << values;
+
         query.prepare(sql);
-        for (int i = 0; i < fields.size(); ++i) {
-            query.bindValue(":" + fields[i], values[i]);
+        for (int i = 0; i < values.size(); ++i) {
+            query.addBindValue(values[i]);
         }
 
         bool success = query.exec();
         if (!success) {
             qDebug() << "Insert error:" << query.lastError().text();
+            qDebug() << "Error type:" << query.lastError().type();
+            qDebug() << "Database error:" << query.lastError().databaseText();
+            qDebug() << "Driver error:" << query.lastError().driverText();
+        } else {
+            qDebug() << "Insert successful, rows affected:" << query.numRowsAffected();
         }
+
+        // 清理线程连接
+        db.close();
+        QSqlDatabase::removeDatabase(threadConnectionName);
 
         return success;
     });
@@ -144,14 +175,33 @@ QFuture<bool> DatabaseManager::updateRecordAsync(const QString& table,
                                                  const QString& condition)
 {
     return QtConcurrent::run([this, table, data, condition]() -> bool {
-        QSqlDatabase db = QSqlDatabase::database(m_connectionName);
+        // 创建新的数据库连接用于当前线程
+        QString threadConnectionName = m_connectionName + "_thread_" + QString::number((quint64)QThread::currentThreadId());
+
+        QSqlDatabase db;
+        if (!QSqlDatabase::contains(threadConnectionName)) {
+            db = QSqlDatabase::addDatabase("QPSQL", threadConnectionName);
+            db.setHostName(m_database.hostName());
+            db.setDatabaseName(m_database.databaseName());
+            db.setUserName(m_database.userName());
+            db.setPassword(m_database.password());
+            db.setPort(m_database.port());
+
+            if (!db.open()) {
+                qDebug() << "Thread database connection failed:" << db.lastError().text();
+                return false;
+            }
+        } else {
+            db = QSqlDatabase::database(threadConnectionName);
+        }
+
         QSqlQuery query(db);
 
         QStringList setClauses;
         QVariantList values;
 
         for (auto it = data.begin(); it != data.end(); ++it) {
-            setClauses.append(it.key() + " = :" + it.key());
+            setClauses.append(it.key() + " = ?");
             values.append(it.value());
         }
 
@@ -161,14 +211,18 @@ QFuture<bool> DatabaseManager::updateRecordAsync(const QString& table,
                         .arg(condition);
 
         query.prepare(sql);
-        for (auto it = data.begin(); it != data.end(); ++it) {
-            query.bindValue(":" + it.key(), it.value());
+        for (int i = 0; i < values.size(); ++i) {
+            query.addBindValue(values[i]);
         }
 
         bool success = query.exec();
         if (!success) {
             qDebug() << "Update error:" << query.lastError().text();
         }
+
+        // 清理线程连接
+        db.close();
+        QSqlDatabase::removeDatabase(threadConnectionName);
 
         return success;
     });
@@ -178,7 +232,26 @@ QFuture<bool> DatabaseManager::deleteRecordAsync(const QString& table,
                                                  const QString& condition)
 {
     return QtConcurrent::run([this, table, condition]() -> bool {
-        QSqlDatabase db = QSqlDatabase::database(m_connectionName);
+        // 创建新的数据库连接用于当前线程
+        QString threadConnectionName = m_connectionName + "_thread_" + QString::number((quint64)QThread::currentThreadId());
+
+        QSqlDatabase db;
+        if (!QSqlDatabase::contains(threadConnectionName)) {
+            db = QSqlDatabase::addDatabase("QPSQL", threadConnectionName);
+            db.setHostName(m_database.hostName());
+            db.setDatabaseName(m_database.databaseName());
+            db.setUserName(m_database.userName());
+            db.setPassword(m_database.password());
+            db.setPort(m_database.port());
+
+            if (!db.open()) {
+                qDebug() << "Thread database connection failed:" << db.lastError().text();
+                return false;
+            }
+        } else {
+            db = QSqlDatabase::database(threadConnectionName);
+        }
+
         QSqlQuery query(db);
 
         QString sql =
@@ -189,6 +262,10 @@ QFuture<bool> DatabaseManager::deleteRecordAsync(const QString& table,
         if (!success) {
             qDebug() << "Delete error:" << query.lastError().text();
         }
+
+        // 清理线程连接
+        db.close();
+        QSqlDatabase::removeDatabase(threadConnectionName);
 
         return success;
     });
