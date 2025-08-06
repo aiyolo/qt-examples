@@ -17,6 +17,7 @@ class ExampleRecipe(ConanFile):
         self.requires("opencv/4.11.0")
         self.requires("qt/5.15.16")
         self.requires("fmt/11.2.0")
+        self.requires("mdns/1.4.3")
 
 
     def layout(self):

@@ -11,6 +11,7 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt5)
 find_package(OpenCV)
 find_package(fmt)
+find_package(mdns)
 
 add_subdirectory(apps)
 add_subdirectory(libs)
