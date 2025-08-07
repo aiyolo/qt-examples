@@ -333,6 +333,115 @@ void test_random_color()
     }
 }
 
+void extractLinePixels(const cv::Mat& image,
+                       const cv::Point2f& start,
+                       const cv::Point2f& end,
+                       std::vector<double>& x_coords,
+                       std::vector<double>& pixel_values)
+{
+    double dx = end.x - start.x;
+    double dy = end.y - start.y;
+    double length = std::sqrt(dx * dx + dy * dy);
+    int samples = std::ceil(length);
+    double angle = std::atan2(dy, dx) * 180.0 / CV_PI; // Angle in degrees
+
+    cv::Mat T = cv::getRotationMatrix2D(start, angle, 1.0);
+    T.at<double>(0, 2) -= start.x;
+    T.at<double>(1, 2) -= start.y;
+
+    cv::Mat aligned;
+    cv::warpAffine(image, aligned, T, cv::Size(samples, 1), cv::INTER_LINEAR);
+    cv::print(aligned);
+    std::cout << std::endl;
+
+    x_coords.resize(samples);
+    pixel_values.resize(samples);
+    double step = length / (samples - 1);
+
+    for (int i = 0; i < samples; ++i) {
+        double t = i * step / length;
+        x_coords[i] = start.x + t * dx;
+        pixel_values[i] = aligned.at<double>(0, i);
+    }
+}
+
+void test_lena()
+{
+    cv::Mat src = cv::imread("C:/Users/zhu/Pictures/river1.png");
+    cv::Mat dst;
+
+    // 旋转角度
+    cv::Point2f start(100, 100);
+    cv::Point2f end(300, 300);
+    cv::line(src, start, end, 255, 1);
+    double angle = 45;
+
+    cv::Size src_sz = src.size();
+    cv::Size dst_sz(src_sz.width, src_sz.height);
+    int len = std::max(src.cols, src.rows);
+
+    // 获取旋转矩阵（2x3矩阵）
+    cv::Mat rot_mat = cv::getRotationMatrix2D(start, -angle, 1.0);
+
+    // 根据旋转矩阵进行仿射变换
+    cv::warpAffine(src, dst, rot_mat, dst_sz);
+
+    // 显示旋转效果
+    cv::imshow("image", src);
+    cv::imshow("result", dst);
+
+    cv::waitKey(0);
+}
+
+void test_extract_line_pixels()
+{
+    cv::Mat mat(50, 50, CV_64FC1);
+    for (int i = 0; i < mat.rows; ++i) {
+        for (int j = 0; j < mat.cols; ++j) {
+            mat.at<double>(i, j) = i;
+        }
+    }
+    mat.at<double>(5, 5) = NAN;
+    cv::print(mat);
+    std::cout << std::endl;
+    cv::Point2f start(-10, 40);
+    cv::Point2f end(60, 40);
+
+    std::vector<double> x_coords;
+    std::vector<double> pixel_values;
+
+    extractLinePixels(mat, start, end, x_coords, pixel_values);
+    for (int i = 0; i < x_coords.size(); ++i) {
+        qDebug() << "x_coords: " << x_coords[i]
+                 << ", pixel_values: " << pixel_values[i];
+    }
+}
+
+void test_lena1()
+{
+    cv::Mat image = cv::imread("C:/Users/zhu/Pictures/cal.jpg");
+    auto start = cv::Point2f(100, 300);
+    auto end = cv::Point2f(300, 100);
+    cv::line(image, start, end, 255, 1);
+    double dx = end.x - start.x;
+    double dy = end.y - start.y;
+    double length = std::sqrt(dx * dx + dy * dy);
+    int samples = std::ceil(length);
+    double angle = std::atan2(dy, dx) * 180.0 / CV_PI; // Angle in degrees
+
+    cv::Mat T = cv::getRotationMatrix2D(start, angle, 1.0);
+    T.at<double>(1, 2) -= start.y;
+    T.at<double>(0, 2) -= start.x;
+
+    auto dst_size = cv::Size(image.cols, 1);
+    cv::Mat aligned;
+    cv::warpAffine(image, aligned, T, dst_size, cv::INTER_LINEAR);
+    cv::imshow("image", image);
+    cv::imshow("result", aligned);
+
+    cv::waitKey(0);
+}
+
 int main()
 {
     // cv::Mat mat =
@@ -345,5 +454,7 @@ int main()
     //          << rect.height;
     // test_save_image();
     // test_waviness();
-    test_random_color();
+    // test_random_color();
+    test_extract_line_pixels();
+    // test_lena1();
 }
