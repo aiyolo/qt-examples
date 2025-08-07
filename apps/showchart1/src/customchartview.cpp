@@ -16,6 +16,25 @@ CustomChartView::CustomChartView(QWidget *parent)
     intersectionPoint->setBrush(QBrush(Qt::blue));
     intersectionPoint->hide();
 
+    // 初始化坐标文本项
+    xAxisLabel = new QGraphicsTextItem(chart());
+    yAxisLabel = new QGraphicsTextItem(chart());
+    intersectionLabel = new QGraphicsTextItem(chart());
+
+    // 设置文本样式
+    QFont font("Arial", 9);
+    xAxisLabel->setFont(font);
+    yAxisLabel->setFont(font);
+    intersectionLabel->setFont(font);
+
+    xAxisLabel->setDefaultTextColor(Qt::black);
+    yAxisLabel->setDefaultTextColor(Qt::black);
+    intersectionLabel->setDefaultTextColor(Qt::blue);
+
+    xAxisLabel->hide();
+    yAxisLabel->hide();
+    intersectionLabel->hide();
+
     setMouseTracking(true);
 }
 
@@ -65,6 +84,9 @@ void CustomChartView::mouseMoveEvent(QMouseEvent *event)
         crosshairV->hide();
         crosshairH->hide();
         intersectionPoint->hide();
+        xAxisLabel->hide();
+        yAxisLabel->hide();
+        intersectionLabel->hide();
         return;
     }
 
@@ -94,6 +116,18 @@ void CustomChartView::mouseMoveEvent(QMouseEvent *event)
     QPointF rightPoint = chart()->mapToPosition(QPointF(xMax, mouseValue.y()));
     crosshairH->setLine(leftPoint.x(), leftPoint.y(), rightPoint.x(), rightPoint.y());
     crosshairH->show();
+
+    // 显示X轴交点坐标
+    QString xText = QString("X: %1").arg(mouseValue.x(), 0, 'f', 2);
+    xAxisLabel->setPlainText(xText);
+    xAxisLabel->setPos(bottomPoint.x() - 20, bottomPoint.y() + 5);
+    xAxisLabel->show();
+
+    // 显示Y轴交点坐标
+    QString yText = QString("Y: %1").arg(mouseValue.y(), 0, 'f', 2);
+    yAxisLabel->setPlainText(yText);
+    yAxisLabel->setPos(leftPoint.x() - 50, leftPoint.y() - 10);
+    yAxisLabel->show();
 
     // 查找与曲线的交点
     QLineSeries *series = qobject_cast<QLineSeries*>(chart()->series().first());
@@ -127,9 +161,17 @@ void CustomChartView::mouseMoveEvent(QMouseEvent *event)
             QPointF intersectionPos = chart()->mapToPosition(intersection);
             intersectionPoint->setPos(intersectionPos.x(), intersectionPos.y());
             intersectionPoint->show();
+
+            // 显示交点坐标
+            QString interText = QString("(%1, %2)").arg(intersection.x(), 0, 'f', 2).arg(intersection.y(), 0, 'f', 2);
+            intersectionLabel->setPlainText(interText);
+            intersectionLabel->setPos(intersectionPos.x() + 10, intersectionPos.y() - 20);
+            intersectionLabel->show();
+
             qDebug() << "Intersection point:" << intersection;
         } else {
             intersectionPoint->hide();
+            intersectionLabel->hide();
         }
     }
 }
@@ -139,5 +181,8 @@ void CustomChartView::mouseReleaseEvent(QMouseEvent *event)
     crosshairV->hide();
     crosshairH->hide();
     intersectionPoint->hide();
+    xAxisLabel->hide();
+    yAxisLabel->hide();
+    intersectionLabel->hide();
     QChartView::mouseReleaseEvent(event);
 }

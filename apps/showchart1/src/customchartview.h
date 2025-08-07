@@ -7,6 +7,7 @@
 #include <QtCharts/QValueAxis>
 #include <QGraphicsLineItem>
 #include <QGraphicsEllipseItem>
+#include <QGraphicsTextItem>
 #include <QMouseEvent>
 #include <QDebug>
 
@@ -28,6 +29,9 @@ protected:
 private:
     QGraphicsLineItem *crosshairV, *crosshairH;
     QGraphicsEllipseItem *intersectionPoint;
+    QGraphicsTextItem *xAxisLabel;
+    QGraphicsTextItem *yAxisLabel;
+    QGraphicsTextItem *intersectionLabel;
 };
 
 #endif // CUSTOMCHARTVIEW_H
