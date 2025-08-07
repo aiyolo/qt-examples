@@ -319,7 +319,7 @@ void test_random_color()
       rng->bounded(100, 200); // 饱和度：100-199，鲜艳但不过于刺眼
     int value = rng->bounded(120, 180); // 明度：120-179，适中以保证对比度
 
-    color.setHsv(hue, saturation, value);
+    // color.setHsv(hue, saturation, value);
     QImage img(100, 100, QImage::Format_ARGB32);
     img.fill(color);
     img.save("test.png");
@@ -345,4 +345,5 @@ int main()
     //          << rect.height;
     // test_save_image();
     // test_waviness();
+    test_random_color();
 }
