@@ -49,6 +49,12 @@ void CustomChartView::setData(const QList<QPointF> &points)
 
     chart()->addSeries(series);
     chart()->createDefaultAxes();
+
+    // // 设置Y轴从0开始
+    // auto* yAxis = qobject_cast<QValueAxis*>(chart()->axisY());
+    // if (yAxis) {
+    //     yAxis->setMin(0); // 强制Y轴从0开始
+    // }
 }
 
 void CustomChartView::setLineStyle(const QPen &pen)
