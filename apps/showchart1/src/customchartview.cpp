@@ -36,6 +36,7 @@ CustomChartView::CustomChartView(QWidget *parent)
     intersectionLabel->hide();
 
     setMouseTracking(true);
+    setDragMode(QChartView::ScrollHandDrag);
 }
 
 void CustomChartView::setData(const QList<QPointF> &points)
@@ -49,12 +50,6 @@ void CustomChartView::setData(const QList<QPointF> &points)
 
     chart()->addSeries(series);
     chart()->createDefaultAxes();
-
-    // // 设置Y轴从0开始
-    // auto* yAxis = qobject_cast<QValueAxis*>(chart()->axisY());
-    // if (yAxis) {
-    //     yAxis->setMin(0); // 强制Y轴从0开始
-    // }
 }
 
 void CustomChartView::setLineStyle(const QPen &pen)
@@ -77,8 +72,25 @@ void CustomChartView::setTitle(const QString &title)
     chart()->setTitle(title);
 }
 
+void CustomChartView::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        // 保存鼠标按下位置用于拖动计算
+        dragStartPos_ = event->pos();
+    }
+    QChartView::mousePressEvent(event);
+}
+
 void CustomChartView::mouseMoveEvent(QMouseEvent *event)
 {
+    // 处理拖动中的平移
+    if (event->buttons() & Qt::LeftButton) {
+        QPoint delta = event->pos() - dragStartPos_;
+        chart()->scroll(-delta.x(), delta.y());
+        dragStartPos_ = event->pos();
+        return;
+    }
+
     QChartView::mouseMoveEvent(event);
 
     // 获取鼠标在图表中的位置
@@ -191,4 +203,15 @@ void CustomChartView::mouseReleaseEvent(QMouseEvent *event)
     yAxisLabel->hide();
     intersectionLabel->hide();
     QChartView::mouseReleaseEvent(event);
+}
+
+void CustomChartView::wheelEvent(QWheelEvent *event)
+{
+    // 计算缩放因子 (8% per wheel step)
+    const double zoomFactor = 1.08;
+    if (event->angleDelta().y() > 0) {
+        chart()->zoom(zoomFactor);
+    } else {
+        chart()->zoom(1.0 / zoomFactor);
+    }
 }

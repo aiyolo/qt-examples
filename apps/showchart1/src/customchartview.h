@@ -9,6 +9,7 @@
 #include <QGraphicsEllipseItem>
 #include <QGraphicsTextItem>
 #include <QMouseEvent>
+#include <QWheelEvent>
 #include <QDebug>
 
 using namespace QtCharts;
@@ -25,6 +26,8 @@ public:
 protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
 private:
     QGraphicsLineItem *crosshairV, *crosshairH;
@@ -32,6 +35,7 @@ private:
     QGraphicsTextItem *xAxisLabel;
     QGraphicsTextItem *yAxisLabel;
     QGraphicsTextItem *intersectionLabel;
+    QPoint dragStartPos_;  // 用于记录拖动起始位置
 };
 
 #endif // CUSTOMCHARTVIEW_H
