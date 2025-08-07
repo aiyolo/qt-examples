@@ -10,7 +10,9 @@ class ExampleRecipe(ConanFile):
         "qt/*:shared": True,
         "qt/*:with_mysql": False,
         "qt/*:with_sqlite3": False,
-        "qt/*:svg": True,
+        "qt/*:qtcharts": True,
+        "qt/*:qtserialport": True,
+        "qt/*:qtsvg": True,
     }
 
     def requirements(self):
