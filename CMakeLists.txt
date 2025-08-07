@@ -12,6 +12,7 @@ find_package(Qt5)
 find_package(OpenCV)
 find_package(fmt)
 find_package(mdns)
+find_package(qcustomplot)
 
 add_subdirectory(apps)
 add_subdirectory(libs)

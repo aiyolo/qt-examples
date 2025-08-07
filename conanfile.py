@@ -15,9 +15,10 @@ class ExampleRecipe(ConanFile):
 
     def requirements(self):
         self.requires("opencv/4.11.0")
-        self.requires("qt/5.15.16")
+        self.requires("qt/5.15.16", force=True)
         self.requires("fmt/11.2.0")
         self.requires("mdns/1.4.3")
+        self.requires("qcustomplot/2.1.1")
 
 
     def layout(self):
