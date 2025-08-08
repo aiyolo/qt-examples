@@ -21,6 +21,7 @@ class ExampleRecipe(ConanFile):
         self.requires("fmt/11.2.0")
         self.requires("mdns/1.4.3")
         self.requires("qcustomplot/2.1.1")
+        self.requires("nlohmann_json/3.11.3")
 
 
     def layout(self):

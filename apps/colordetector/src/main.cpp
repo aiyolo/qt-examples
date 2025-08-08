@@ -5,6 +5,8 @@
 #include <cmath>
 #include <cstdio>
 #include <fstream>
+#include <qjsonarray.h>
+#include <qjsonobject.h>
 #include <iostream>
 #include <opencv2/core.hpp>
 #include <opencv2/core/cvdef.h>
@@ -15,6 +17,8 @@
 #include <opencv2/opencv.hpp>
 #include <fmt/format.h>
 #include <qelapsedtimer.h>
+#include <qevent.h>
+#include <qjsondocument.h>
 #include <qpixmap.h>
 #include <sstream>
 #include <opencv2/core/hal/hal.hpp>
@@ -23,6 +27,17 @@
 #include <QRandomGenerator>
 
 // fmt print cv::Vec3i
+#include "nlohmann/json.hpp"
+struct FakeDefectInfo
+{
+    std::string poly;
+    std::string comment;
+    bool used = false;
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(FakeDefectInfo,
+                                                poly,
+                                                comment,
+                                                used)
+};
 
 template<typename T>
 struct fmt::formatter<cv::Vec<T, 3>> : fmt::formatter<std::string>
@@ -442,6 +457,69 @@ void test_lena1()
     cv::waitKey(0);
 }
 
+inline QSizeF getDefectFeature(const QString& jsonString)
+{
+    QJsonParseError jsonError;
+    QJsonDocument doc =
+      QJsonDocument::fromJson(jsonString.toUtf8(), &jsonError);
+    if (jsonError.error != QJsonParseError::NoError) {
+        qWarning() << "Failed to parse JSON:" << jsonError.errorString();
+        return QSizeF(0, 0);
+    }
+
+    QJsonObject rootObject = doc.object();
+    QJsonArray attributeArray = rootObject.value("attribute").toArray();
+
+    double width = -1;
+    double length = -1;
+
+    for (const QJsonValue& value : attributeArray) {
+        QJsonObject attributeObject = value.toObject();
+        QString name = attributeObject.value("name").toString();
+        double physicalData = attributeObject.value("physical_data").toDouble();
+
+        if (name == "宽度") {
+            width = physicalData;
+        } else if (name == "长度") {
+            length = physicalData;
+        }
+    }
+    return QSizeF(length, width);
+}
+void test_json()
+{
+    // FakeDefectInfo fakeDefectInfo;
+    // fakeDefectInfo.feat =
+    //   R"({"attribute":[{"name":"宽度","ori_data":0.2938324809074402,"physical_data":0.2938324809074402},{"name":"得分","ori_data":0.91259765625,"physical_data":0.91259765625},{"name":"横坐标","ori_data":0,"physical_data":0},{"name":"纵坐标","ori_data":0,"physical_data":0},{"name":"长度","ori_data":0.4142772853374481,"physical_data":0.4142772853374481},{"name":"面积","ori_data":0.10033122450113297,"physical_data":0.10033122450113297}],"defect_index":12,"level_index":0,"result":"rule_filter_ng","rule_index":0})";
+
+    // fakeDefectInfo.poly =
+    //   "13196|5704|13122|5702|13055|5703|13051|5704|13044|5713|13037|5716|"
+    //   "13033|5721|13031|5737|13031|5781|13027|5819|13027|5878|13029|5893|"
+    //   "13025|5946|13024|5986|13025|5997|13027|6001|13041|6006|13052|6015|"
+    //   "13099|6015|13109|6005|13114|6003|13127|6002|13137|5992|13149|5990|"
+    //   "13159|5980|13173|5978|13179|5969|13197|5966|13204|5958|13210|5955|"
+    //   "13238|5955|13243|5954|13246|5950|13245|5924|13243|5921|13234|5919|"
+    //   "13229|5914|13223|5903|13222|5841|13223|5816|13228|5805|13227|5793|"
+    //   "13229|5786|13230|5769|13229|5744|13220|5720|13208|5714";
+
+    // QList<FakeDefectInfo> fakeDefectInfoList;
+    // fakeDefectInfoList.append(fakeDefectInfo);
+
+    // nlohmann::json json = fakeDefectInfoList;
+
+    QFile file("defect.json");
+    // if (file.open(QIODevice::WriteOnly)) {
+    //     file.write(QString(json.dump().c_str()).toUtf8());
+    //     file.close();
+    // }
+
+    file.open(QIODevice::ReadOnly);
+    auto j = file.readAll();
+    nlohmann::json j1 = nlohmann::json::parse(j);
+    QList<FakeDefectInfo> fakeDefectInfoList1 = j1;
+    qDebug() << "a";
+}
+
 int main()
 {
     // cv::Mat mat =
@@ -455,6 +533,7 @@ int main()
     // test_save_image();
     // test_waviness();
     // test_random_color();
-    test_extract_line_pixels();
+    // test_extract_line_pixels();
     // test_lena1();
+    test_json();
 }

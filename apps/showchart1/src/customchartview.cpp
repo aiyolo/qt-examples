@@ -1,7 +1,7 @@
 #include "customchartview.h"
 
 CustomChartView::CustomChartView(QWidget *parent)
-    : QChartView(new QChart(), parent)
+    : QChartView( parent)
 {
     crosshairV = new QGraphicsLineItem(chart());
     crosshairH = new QGraphicsLineItem(chart());

@@ -4,7 +4,7 @@ LossChart::LossChart(QWidget* parent)
     : QWidget(parent)
 {
     customPlot = new QCustomPlot(this);
-    customPlot->setBackground(QBrush(QColor(0, 0, 0)));
+    customPlot->setBackground(QBrush(QColor(200, 200, 255)));
     customPlot->addGraph();
 
     // give the axes some labels:
